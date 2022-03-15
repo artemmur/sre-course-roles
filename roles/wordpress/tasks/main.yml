@@ -1,0 +1,89 @@
+- name: Install packages
+  import_tasks: redhat.yml
+  when: ansible_facts['os_family']|lower == 'redhat'
+
+- name: Check wordpress existence 
+  stat:
+    path: /var/www/wordpress/wp-config.php
+  register: out
+
+- name: Install and configure wordpress
+  block:
+    - name: Download
+      shell: "https_proxy={{ proxy_env.http_proxy }} curl -O https://wordpress.org/latest.tar.gz"
+
+    - name: Decompress
+      unarchive:
+        src: "/home/{{ ansible_user }}/latest.tar.gz"
+        dest: /var/www
+        remote_src: yes
+
+    - name: Add configuration
+      copy:
+        src: /var/www/wordpress/wp-config-sample.php
+        dest: /var/www/wordpress/wp-config.php
+        remote_src: yes
+
+    - name: Setup database name
+      lineinfile:
+        path: /var/www/wordpress/wp-config.php
+        regexp: DB_NAME
+        line: "define('DB_NAME', 'wordpress');" 
+
+    - name: Setup database user
+      lineinfile:
+        path: /var/www/wordpress/wp-config.php
+        regexp: DB_USER
+        line: "define('DB_USER', 'wordpressuser');" 
+
+    - name: Read database password
+      slurp:
+        src: "/home/{{ ansible_user }}/.my.cnf"
+      register: credentials
+   
+    - name: Setup database password
+      lineinfile:
+        path: /var/www/wordpress/wp-config.php
+        regexp: DB_PASSWORD
+        line: "define('DB_PASSWORD', '{{ credentials['content'] | b64decode | regex_search('password=(.+)', '\\1') | first }}');" 
+  when: out.stat.isreg is undefined and proxy_env is defined
+  become: yes
+
+- name: Copy nginx config
+  copy:
+    src: files/wordpress.conf
+    dest: /etc/nginx/nginx.conf
+    force: yes
+  become: yes
+ 
+- name: Copy php-fpm config
+  copy:
+    src: files/www.conf
+    dest: /etc/php-fpm.d
+    force: yes
+  become: yes
+
+- name: Copy php.ini
+  copy:
+    src: files/php.ini
+    dest: /etc/php.ini
+    force: yes
+  become: yes
+
+- name: SELinux enable httpd connect
+  command: setsebool -P httpd_can_network_connect on
+  become: yes
+
+- name: Restart php-fpm
+  systemd:
+    name: php-fpm
+    state: restarted
+    enabled: yes
+  become: yes
+
+- name: Restart nginx
+  systemd:
+    name: nginx
+    state: restarted
+    enabled: yes
+  become: yes

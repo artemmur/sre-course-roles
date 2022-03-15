@@ -1,0 +1,6 @@
+- name: Install mariadb
+  dnf:
+    name:
+      - mariadb-server
+    state: latest
+  become: yes

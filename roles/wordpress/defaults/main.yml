@@ -1,0 +1,4 @@
+php_version: 8.1
+
+proxy_env:
+  http_proxy: ""

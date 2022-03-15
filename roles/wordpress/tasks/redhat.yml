@@ -1,0 +1,22 @@
+- name: Install the remi repo
+  command: dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+  become: yes
+
+- name: Enable remi php repo
+  command: dnf module enable -y php:remi-{{ php_version }}
+  become: yes
+
+- name: Enable nginx mainline
+  command: dnf module enable -y nginx:mainline 
+  become: yes
+
+- name: Install dependecies
+  dnf:
+    name:
+      - php-mysql
+      - php-fpm
+      - php-gd 
+      - php
+      - nginx
+    state: latest
+  become: yes

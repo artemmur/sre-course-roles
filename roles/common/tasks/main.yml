@@ -1,0 +1,27 @@
+- name: Copy sshd config
+  copy:
+    src: files/sshd_config
+    dest: /etc/ssh/sshd_config
+    force: yes
+  become: yes
+
+- name: Copy authorized users public keys
+  copy:
+    src: files/authorized_keys
+    dest: ~/.ssh/authorized_keys
+    force: yes
+
+- name: Reload ssh daemon
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: sshd
+  become: yes
+
+- name: Turnoff swap
+  command: swapoff -a
+  become: yes
+
+- name: Setup package manager for RHEL
+  import_tasks: redhat.yml
+  when: ansible_facts['os_family']|lower == 'redhat'

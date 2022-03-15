@@ -1,0 +1,8 @@
+[production:children]
+application
+monitoring
+
+[application]
+almalinux ansible_host=10.115.48.101 ansible_user=sre-quest
+
+[monitoring]
