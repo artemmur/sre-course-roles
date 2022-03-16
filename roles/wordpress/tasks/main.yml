@@ -1,6 +1,10 @@
-- name: Install packages
-  import_tasks: redhat.yml
+- name: Install packages for RHEL
+  include_tasks: redhat.yml
   when: ansible_facts['os_family']|lower == 'redhat'
+
+- name: Install packages for debian
+  include_tasks: debian.yml
+  when: ansible_facts['os_family']|lower == 'debian'
 
 - name: Check wordpress existence 
   stat:
@@ -49,6 +53,23 @@
   when: out.stat.isreg is undefined and proxy_env is defined
   become: yes
 
+- name: Ensure group nginx exists
+  group:
+    name: nginx
+    state: present
+    system: yes
+  become: yes
+
+- name: Create nginx user and group
+  user:
+    name: nginx
+    group: nginx
+    state: present
+    createhome: no
+    shell: /usr/bin/false
+    system: yes
+  become: yes
+
 - name: Copy nginx config
   copy:
     src: files/wordpress.conf
@@ -59,8 +80,17 @@
 - name: Copy php-fpm config
   copy:
     src: files/www.conf
-    dest: /etc/php-fpm.d
+    dest: /etc/php-fpm.d/www.conf
     force: yes
+  when: ansible_facts['os_family']|lower == 'redhat'
+  become: yes
+
+- name: Copy php-fpm config
+  copy:
+    src: files/www.conf
+    dest: /etc/php/8.1/fpm/pool.d/www.conf
+    force: yes
+  when: ansible_facts['os_family']|lower == 'debian'
   become: yes
 
 - name: Copy php.ini
@@ -68,17 +98,36 @@
     src: files/php.ini
     dest: /etc/php.ini
     force: yes
+  when: ansible_facts['os_family']|lower == 'redhat'
+  become: yes
+
+- name: Copy php.ini
+  copy:
+    src: files/php.ini
+    dest: /etc/php/8.1/fpm/php.ini
+    force: yes
+  when: ansible_facts['os_family']|lower == 'debian'
   become: yes
 
 - name: SELinux enable httpd connect
   command: setsebool -P httpd_can_network_connect on
+  when: ansible_facts['os_family']|lower == 'redhat'
   become: yes
 
-- name: Restart php-fpm
+- name: Restart php-fpm on RHEL
   systemd:
     name: php-fpm
     state: restarted
     enabled: yes
+  when: ansible_facts['os_family']|lower == 'redhat'
+  become: yes
+
+- name: Restart php-fpm on debian
+  systemd:
+    name: php8.1-fpm
+    state: restarted
+    enabled: yes
+  when: ansible_facts['os_family']|lower == 'debian'
   become: yes
 
 - name: Restart nginx

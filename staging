@@ -3,7 +3,7 @@ application
 monitoring
 
 [application]
-almalinux ansible_host=89.208.230.229 ansible_user=almalinux
+ubuntu ansible_host=146.185.208.254 ansible_user=ubuntu
 
 [monitoring]
-ubuntu ansible_host=37.139.43.37 ansible_user=ubuntu
+almalinux ansible_host=37.139.43.37 ansible_user=almalinux

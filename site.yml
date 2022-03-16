@@ -1,5 +1,5 @@
 - name: Setup SSH server and turn off swap, update packages
-  hosts: all
+  hosts: application
   roles:
     - common
 

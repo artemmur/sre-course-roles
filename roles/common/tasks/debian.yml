@@ -1,0 +1,19 @@
+- name: Setup proxy server for for apt
+  lineinfile:
+    path: /etc/etc/apt.conf
+    regexp: ^Acquire::http::Proxy
+    line: Acquire::http::Proxy "{{ proxy_env.http_proxy }}";
+    create: yes
+  when: proxy_env is defined
+  become: yes
+
+- name: Update cache
+  apt:
+    update_cache: yes
+  become: yes
+
+# - name: Upgrade the system
+#   command: apt upgrade -y
+#   environment:
+#     DEBIAN_FRONTEND: noninteractive
+#   become: yes

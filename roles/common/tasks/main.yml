@@ -23,5 +23,17 @@
   become: yes
 
 - name: Setup package manager for RHEL
-  import_tasks: redhat.yml
+  include_tasks: redhat.yml
   when: ansible_facts['os_family']|lower == 'redhat'
+  register: RHEL
+
+- name: Setup package manager for Ubuntu
+  include_tasks: debian.yml
+  when: ansible_facts['os_family']|lower == 'debian'
+  register: debian
+
+# - name: Reboot
+#   reboot:
+#     reboot_timeout: 3600
+#   become: yes
+#   when: debian is defined and debian.changed or RHEL is defined and RHEL.changed 

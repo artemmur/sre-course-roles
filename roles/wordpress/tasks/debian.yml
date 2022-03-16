@@ -1,0 +1,19 @@
+- name: Install php repo
+  shell: "https_proxy={{ proxy_env.http_proxy }} add-apt-repository -y ppa:ondrej/php"
+  become: yes
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  become: yes
+
+- name: Install dependecies
+  apt:
+    pkg:
+      - "php{{ php_version }}-mysql"
+      - "php{{ php_version }}-fpm"
+      - "php{{ php_version }}-gd"
+      - "php{{ php_version }}"
+      - "nginx"
+    state: latest
+  become: yes

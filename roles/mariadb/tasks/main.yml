@@ -1,6 +1,10 @@
-- name: Install mariadb server
-  import_tasks: redhat.yml
+- name: Install mariadb server for RHEL
+  include_tasks: redhat.yml
   when: ansible_facts['os_family']|lower == 'redhat'
+
+- name: Install mariadb server for Ubuntu
+  include_tasks: debian.yml
+  when: ansible_facts['os_family']|lower == 'debian'
 
 - name: Start server
   systemd:
@@ -16,11 +20,12 @@
 
 - name: Initialize wordpress database
   when: not config.stat.exists
+  become: yes
   block:
     - name: Copy .my.cnf file with root password credentials
       template: 
         src: .my.cnf
-        dest: ~/.my.cnf
+        dest: "/home/{{ ansible_user }}/.my.cnf"
         mode: 600
 
     - name: Create user and database

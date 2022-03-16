@@ -3,6 +3,7 @@ application
 monitoring
 
 [application]
-almalinux ansible_host=10.115.48.101 ansible_user=sre-quest
+ubuntu ansible_host=10.115.48.102 ansible_user=sre-quest
 
 [monitoring]
+almalinux ansible_host=10.115.48.101 ansible_user=sre-quest
