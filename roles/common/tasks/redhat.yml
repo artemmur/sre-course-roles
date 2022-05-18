@@ -5,16 +5,10 @@
     insertafter: [main]
     line: proxy={{ proxy_env.http_proxy }}
   when: proxy_env is defined
-  become: yes
 
-- name: Enable EPEL Repository
-  dnf:
-    name: epel-release
-    state: latest
-  become: yes
-
-# - name: Update the system
-#   dnf:
-#     name:  "*"
-#     state: latest 
-#   become: yes
+- name: Setup proxy server for HTTP clients
+  lineinfile:
+    path: /etc/profile
+    regexp: "export http_proxy"
+    line: http_proxy={{ proxy_env.http_proxy }}
+  when: proxy_env is defined

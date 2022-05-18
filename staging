@@ -1,9 +1,0 @@
-[staging:children]
-application
-monitoring
-
-[application]
-ubuntu ansible_host=146.185.208.254 ansible_user=ubuntu
-
-[monitoring]
-almalinux ansible_host=37.139.43.37 ansible_user=almalinux

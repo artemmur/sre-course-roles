@@ -3,7 +3,6 @@
     src: files/sshd_config
     dest: /etc/ssh/sshd_config
     force: yes
-  become: yes
 
 - name: Copy authorized users public keys
   copy:
@@ -16,11 +15,9 @@
     state: restarted
     daemon_reload: yes
     name: sshd
-  become: yes
 
 - name: Turnoff swap
   command: swapoff -a
-  become: yes
 
 - name: Setup package manager for RHEL
   include_tasks: redhat.yml
@@ -35,5 +32,4 @@
 # - name: Reboot
 #   reboot:
 #     reboot_timeout: 3600
-#   become: yes
 #   when: debian is defined and debian.changed or RHEL is defined and RHEL.changed 

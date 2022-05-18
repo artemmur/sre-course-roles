@@ -1,4 +1,0 @@
-- hosts: application
-  roles:
-    - mariadb
-    - wordpress

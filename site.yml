@@ -1,7 +1,7 @@
-- name: Setup SSH server and turn off swap, update packages
-  hosts: application
+- hosts: application
   roles:
     - common
-
-- name: Deploy application
-  import_playbook: application.yml
+    - ansible-node-exporter
+    - database
+    - application
+  become: yes

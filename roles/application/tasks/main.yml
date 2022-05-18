@@ -14,7 +14,7 @@
 - name: Install and configure wordpress
   block:
     - name: Download
-      shell: "https_proxy={{ proxy_env.http_proxy }} curl -O https://wordpress.org/latest.tar.gz"
+      shell: curl -O https://wordpress.org/latest.tar.gz
 
     - name: Decompress
       unarchive:
@@ -51,14 +51,12 @@
         regexp: DB_PASSWORD
         line: "define('DB_PASSWORD', '{{ credentials['content'] | b64decode | regex_search('password=(.+)', '\\1') | first }}');" 
   when: out.stat.isreg is undefined and proxy_env is defined
-  become: yes
 
 - name: Ensure group nginx exists
   group:
     name: nginx
     state: present
     system: yes
-  become: yes
 
 - name: Create nginx user and group
   user:
@@ -68,14 +66,12 @@
     createhome: no
     shell: /usr/bin/false
     system: yes
-  become: yes
 
 - name: Copy nginx config
   copy:
     src: files/wordpress.conf
     dest: /etc/nginx/nginx.conf
     force: yes
-  become: yes
  
 - name: Copy php-fpm config
   copy:
@@ -83,7 +79,6 @@
     dest: /etc/php-fpm.d/www.conf
     force: yes
   when: ansible_facts['os_family']|lower == 'redhat'
-  become: yes
 
 - name: Copy php-fpm config
   copy:
@@ -91,7 +86,6 @@
     dest: /etc/php/8.1/fpm/pool.d/www.conf
     force: yes
   when: ansible_facts['os_family']|lower == 'debian'
-  become: yes
 
 - name: Copy php.ini
   copy:
@@ -99,7 +93,6 @@
     dest: /etc/php.ini
     force: yes
   when: ansible_facts['os_family']|lower == 'redhat'
-  become: yes
 
 - name: Copy php.ini
   copy:
@@ -107,12 +100,10 @@
     dest: /etc/php/8.1/fpm/php.ini
     force: yes
   when: ansible_facts['os_family']|lower == 'debian'
-  become: yes
 
 - name: SELinux enable httpd connect
   command: setsebool -P httpd_can_network_connect on
   when: ansible_facts['os_family']|lower == 'redhat'
-  become: yes
 
 - name: Restart php-fpm on RHEL
   systemd:
@@ -120,7 +111,6 @@
     state: restarted
     enabled: yes
   when: ansible_facts['os_family']|lower == 'redhat'
-  become: yes
 
 - name: Restart php-fpm on debian
   systemd:
@@ -128,11 +118,9 @@
     state: restarted
     enabled: yes
   when: ansible_facts['os_family']|lower == 'debian'
-  become: yes
 
 - name: Restart nginx
   systemd:
     name: nginx
     state: restarted
     enabled: yes
-  become: yes
