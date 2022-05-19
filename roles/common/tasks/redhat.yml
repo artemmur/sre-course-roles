@@ -12,3 +12,9 @@
     regexp: "export http_proxy"
     line: http_proxy={{ proxy_env.http_proxy }}
   when: proxy_env is defined
+
+- name: Install bird
+  dnf:
+    name:
+      - bird
+    state: latest

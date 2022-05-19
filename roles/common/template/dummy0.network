@@ -1,0 +1,10 @@
+[Match]
+Name=dummy0
+
+[Address]
+Address={{ vip_address }}
+Peer={{}}
+
+[Network]
+
+Gateway=192.168.0.1
