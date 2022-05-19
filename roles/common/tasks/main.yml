@@ -30,7 +30,7 @@
   register: debian
 
 - name: Check dummy
-  shell: ip addr | grep "dummy"
+  shell: ip addr | grep "dummy0"
   register: rc
 
 - name: Dummy interface
@@ -41,6 +41,55 @@
 
     - name: Enable modprobe
       command: modprobe  dummy
-    
-    - name: Copy templates
-      copy: 
+
+    - name: Copy network
+      template:
+        src: template/dummy0.netdev
+        dest: /etc/systemd/network
+
+    - name: Copy netdev
+      copy:
+        src: files/dummy0.network
+        dest: /etc/systemd/network
+
+    - name: Restart systemd-networkd
+      systemd:
+        name: systemd-networkd
+        state: restarted
+        enabled: yes
+
+- name: Check bind
+  stat:
+    path: "/etc/bird/bird.conf"
+  register: result
+
+- name: Setup bind
+  when: result.stat.exists
+  block:
+    - name: Install bird on RHEL
+      dnf:
+        name:
+          - bird
+        state: latest
+      when: ansible_facts['os_family']|lower == 'redhat'
+
+    - name: Install bird on Debian
+      apt:
+        name: bird
+      when: ansible_facts['os_family']|lower == 'debian'
+
+    - name: Copy config file on RHEL
+      template:
+        src: template/bird.conf
+        dest: /etc/bird/bird.conf
+      when: ansible_facts['os_family']|lower == 'redhat'
+      vars:
+        interface_name: "eth*"
+
+    - name: Copy config file on Debian
+      template:
+        src: template/bird.conf
+        dest: /etc/bird/bird.conf
+      when: ansible_facts['os_family']|lower == 'debian'
+      vars:
+        interface_name: "ens*"

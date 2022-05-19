@@ -9,7 +9,3 @@
 - name: Update cache
   apt:
     update_cache: yes
-
-- name: Install bird
-  apt:
-    name: bird
