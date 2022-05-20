@@ -4,7 +4,6 @@
 - name: Enable remi php repo
   command: dnf module enable -y php:remi-{{ php_version }}
 
-
 - name: Install dependecies
   dnf:
     name:

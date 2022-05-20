@@ -1,4 +1,4 @@
-- name: Setup proxy server for for apt
+- name: Setup proxy server for apt
   lineinfile:
     path: /etc/etc/apt.conf
     regexp: ^Acquire::http::Proxy

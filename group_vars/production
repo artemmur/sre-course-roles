@@ -1,2 +1,4 @@
 proxy_env:
   http_proxy: http://10.115.48.1:8080
+
+vip_address: 10.115.100.148/32

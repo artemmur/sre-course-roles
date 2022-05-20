@@ -1,7 +1,6 @@
 - hosts: application
   roles:
     - common
-    - ansible-node-exporter
     - database
-    - application
+    - wordpress
   become: yes

@@ -12,3 +12,8 @@
     regexp: "export http_proxy"
     line: http_proxy={{ proxy_env.http_proxy }}
   when: proxy_env is defined
+
+- name: Enable EPEL Repository on CentOS 8
+  dnf:
+    name: epel-release
+    state: latest

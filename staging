@@ -1,0 +1,6 @@
+[staging:children]
+application
+
+[application]
+ubuntu ansible_host=37.139.43.11 ansible_user=ubuntu
+alma ansible_host=109.120.183.107 ansible_user=almalinux
