@@ -44,7 +44,7 @@
       slurp:
         src: "/home/{{ ansible_user }}/.my.cnf"
       register: credentials
-   
+
     - name: Setup database password
       lineinfile:
         path: /var/www/wordpress/wp-config.php
@@ -69,34 +69,34 @@
 
 - name: Copy nginx config
   copy:
-    src: files/wordpress.conf
+    src: wordpress.conf
     dest: /etc/nginx/nginx.conf
     force: yes
  
 - name: Copy php-fpm config
   copy:
-    src: files/www.conf
+    src: www.conf
     dest: /etc/php-fpm.d/www.conf
     force: yes
   when: ansible_facts['os_family']|lower == 'redhat'
 
 - name: Copy php-fpm config
   copy:
-    src: files/www.conf
+    src: www.conf
     dest: /etc/php/8.1/fpm/pool.d/www.conf
     force: yes
   when: ansible_facts['os_family']|lower == 'debian'
 
 - name: Copy php.ini
   copy:
-    src: files/php.ini
+    src: php.ini
     dest: /etc/php.ini
     force: yes
   when: ansible_facts['os_family']|lower == 'redhat'
 
 - name: Copy php.ini
   copy:
-    src: files/php.ini
+    src: php.ini
     dest: /etc/php/8.1/fpm/php.ini
     force: yes
   when: ansible_facts['os_family']|lower == 'debian'

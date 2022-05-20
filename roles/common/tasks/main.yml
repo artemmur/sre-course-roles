@@ -31,40 +31,48 @@
 
 - name: Check dummy
   shell: ip addr | grep "dummy0"
-  register: rc
+  register: result
+  ignore_errors: True
 
 - name: Dummy interface
-  when: when.rc != 0
+  when: result.rc != 0
   block:
     - name: Create dummy interface
       shell: echo "dummy" > /etc/modules-load.d/dummy.conf
 
     - name: Enable modprobe
-      command: modprobe  dummy
+      command: modprobe dummy
 
-    - name: Copy network
-      template:
-        src: template/dummy0.netdev
-        dest: /etc/systemd/network
+    - name: Install systemd-networkd on RHEL >:|
+      dnf:
+        name:
+          - systemd-networkd
+        state: latest
+      when: ansible_facts['os_family']|lower == 'redhat'
 
-    - name: Copy netdev
-      copy:
-        src: files/dummy0.network
-        dest: /etc/systemd/network
+- name: Copy network
+  template:
+    src: dummy0.network
+    dest: /etc/systemd/network
 
-    - name: Restart systemd-networkd
-      systemd:
-        name: systemd-networkd
-        state: restarted
-        enabled: yes
+- name: Copy netdev
+  copy:
+    src: dummy0.netdev
+    dest: /etc/systemd/network
 
-- name: Check bind
-  stat:
-    path: "/etc/bird/bird.conf"
+- name: Restart systemd-networkd
+  systemd:
+    name: systemd-networkd
+    state: restarted
+    enabled: yes
+
+- name: Check bird
+  command: bird --version
   register: result
+  ignore_errors: True
 
-- name: Setup bind
-  when: result.stat.exists
+- name: Setup bird
+  when: result.rc != 0
   block:
     - name: Install bird on RHEL
       dnf:
@@ -75,21 +83,27 @@
 
     - name: Install bird on Debian
       apt:
-        name: bird
+        name: bird2
       when: ansible_facts['os_family']|lower == 'debian'
 
-    - name: Copy config file on RHEL
-      template:
-        src: template/bird.conf
-        dest: /etc/bird/bird.conf
-      when: ansible_facts['os_family']|lower == 'redhat'
-      vars:
-        interface_name: "eth*"
+- name: Copy config file on RHEL
+  template:
+    src: bird.conf
+    dest: /etc/bird.conf
+  when: ansible_facts['os_family']|lower == 'redhat'
+  vars:
+    interface_name: "eth*"
 
-    - name: Copy config file on Debian
-      template:
-        src: template/bird.conf
-        dest: /etc/bird/bird.conf
-      when: ansible_facts['os_family']|lower == 'debian'
-      vars:
-        interface_name: "ens*"
+- name: Copy config file on Debian
+  template:
+    src: bird.conf
+    dest: /etc/bird/bird.conf
+  when: ansible_facts['os_family']|lower == 'debian'
+  vars:
+    interface_name: "ens*"
+
+- name: Restart bird daemon
+  systemd:
+    name: bird
+    state: restarted
+    enabled: yes

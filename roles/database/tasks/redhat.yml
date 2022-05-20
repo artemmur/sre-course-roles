@@ -3,4 +3,3 @@
     name:
       - mariadb-server
     state: latest
-  become: yes

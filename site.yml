@@ -2,6 +2,5 @@
   roles:
     - common
     - database
-    - application
-    - ansible-node-exporter
+    - wordpress
   become: yes
