@@ -50,14 +50,21 @@
         state: latest
       when: ansible_facts['os_family']|lower == 'redhat'
 
+    - name: Copy netdev on RHEL
+      command: ip r add {{ vip_address }} via {{ ansible_default_ipv4.address }} dev {{ interface_name }}
+      vars:
+        interface_name: "eth0"
+      when: ansible_facts['os_family']|lower == 'redhat'
+
+    - name: Copy netdev on Debian
+      command: ip r add {{ vip_address }} via {{ ansible_default_ipv4.address }} dev {{ interface_name }}
+      vars:
+        interface_name: "ens3"
+      when: ansible_facts['os_family']|lower == 'debian'
+
 - name: Copy network
   template:
     src: dummy0.network
-    dest: /etc/systemd/network
-
-- name: Copy netdev
-  copy:
-    src: dummy0.netdev
     dest: /etc/systemd/network
 
 - name: Restart systemd-networkd
