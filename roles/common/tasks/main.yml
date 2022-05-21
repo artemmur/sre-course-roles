@@ -92,7 +92,7 @@
     dest: /etc/bird.conf
   when: ansible_facts['os_family']|lower == 'redhat'
   vars:
-    interface_name: "eth*"
+    interface_name: "eth0"
 
 - name: Copy config file on Debian
   template:
@@ -100,7 +100,7 @@
     dest: /etc/bird/bird.conf
   when: ansible_facts['os_family']|lower == 'debian'
   vars:
-    interface_name: "ens*"
+    interface_name: "ens3"
 
 - name: Restart bird daemon
   systemd:

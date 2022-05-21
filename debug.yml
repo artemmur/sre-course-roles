@@ -1,9 +1,0 @@
-- hosts: application
-  tasks:
-    - name: Check dummy
-      shell: ip addr | grep "dummy0"
-      register: rc
-      ignore_errors: True
-
-    - debug:
-        msg: "{{ rc }}"
